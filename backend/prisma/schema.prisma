@@ -1,0 +1,86 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String     @id @default(uuid())
+  username     String     @unique
+  phone        String     @unique
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  
+  ownedRooms   Room[]     @relation("RoomAdmin")
+  roomMembers  RoomUser[]
+  squads       Squad[]
+}
+
+model Room {
+  id         String     @id @default(uuid())
+  code       String     @unique
+  name       String
+  type       RoomType   @default(PRIVATE)
+  adminId    String
+  passcode   String?    
+  status     RoomStatus @default(WAITING)
+  createdAt  DateTime   @default(now())
+
+  admin      User       @relation("RoomAdmin", fields: [adminId], references: [id])
+  users      RoomUser[]
+  squads     Squad[]
+}
+
+model RoomUser {
+  id           String   @id @default(uuid())
+  roomId       String
+  userId       String
+  teamName     String   @default("Unnamed")
+  purseBalance Decimal  @default(100.00)
+  currentPoints Int     @default(0)
+  
+  room         Room     @relation(fields: [roomId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@unique([roomId, userId])
+}
+
+model Player {
+  id          String   @id @default(uuid())
+  apiId       String   @unique
+  name        String
+  role        String
+  team        String?
+  basePrice   Decimal
+  squads      Squad[]
+}
+
+model Squad {
+  id          String   @id @default(uuid())
+  roomId      String
+  userId      String
+  playerId    String
+  boughtFor   Decimal
+  isInPlaying11 Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  room        Room     @relation(fields: [roomId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+  player      Player   @relation(fields: [playerId], references: [id])
+
+  @@unique([roomId, playerId])
+}
+
+enum RoomType {
+  GLOBAL
+  PRIVATE
+}
+
+enum RoomStatus {
+  WAITING
+  ACTIVE
+  FINISHED
+}
