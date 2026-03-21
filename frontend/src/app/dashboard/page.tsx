@@ -83,7 +83,7 @@ export default function Dashboard() {
     setErrorMsg("");
     
     try {
-      const res = await fetch(`http://localhost:3001/api/rooms/${targetRoomId}/join`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SOCKET_URL}/api/rooms/${targetRoomId}/join`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -107,7 +107,7 @@ export default function Dashboard() {
   const deleteRoom = async (roomId: string) => {
     if (!window.confirm("Are you sure you want to permanently dissolve this Matrix?")) return;
     try {
-      const res = await fetch(`http://localhost:3001/api/rooms/${roomId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SOCKET_URL}/api/rooms/${roomId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${user?.token}` }
       });

@@ -46,7 +46,7 @@ export default function AuctionRoom() {
   const fetchSquadAndPurse = async () => {
     if (!user || !id) return;
     try {
-      const res = await fetch(`http://localhost:3001/api/rooms/${id}/squad`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SOCKET_URL}/api/rooms/${id}/squad`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       const data = await res.json();
@@ -60,7 +60,7 @@ export default function AuctionRoom() {
   const fetchLots = async () => {
     if (!user || !id) return;
     try {
-      const res = await fetch(`http://localhost:3001/api/rooms/${id}/lots`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SOCKET_URL}/api/rooms/${id}/lots`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       const data = await res.json();
