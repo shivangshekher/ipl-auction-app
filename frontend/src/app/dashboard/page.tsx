@@ -128,7 +128,7 @@ export default function Dashboard() {
   if (!user) return null;
 
   return (
-    <div style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto" }}>
+    <div className="dashboard-container">
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px", borderBottom: "1px solid var(--border)", paddingBottom: "20px" }}>
         <h1 style={{ fontSize: "28px", display: "flex", alignItems: "center", gap: "10px", fontWeight: "800" }}>
           <LayoutDashboard size={28} color="var(--primary)"/> Auction Central
@@ -149,7 +149,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "30px" }}>
+      <div className="dashboard-grid">
         {/* Actions Sidebar */}
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           

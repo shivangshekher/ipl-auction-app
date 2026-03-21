@@ -224,3 +224,81 @@ body {
   overflow-y: auto;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
+
+/* Responsive Layouts */
+.arena-container {
+  padding: 30px;
+  max-width: 1600px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 2.5fr 1.2fr;
+  gap: 30px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.dashboard-container {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 30px;
+}
+
+.auction-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  width: 100%;
+  margin-bottom: 50px;
+}
+
+@media (max-width: 1024px) {
+  .arena-container {
+    grid-template-columns: 1fr 1.5fr;
+    height: auto;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 768px) {
+  .arena-container {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+    padding: 15px;
+    gap: 15px;
+  }
+  .dashboard-container {
+    padding: 20px;
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .auction-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .auction-stats-grid > div {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border);
+    padding: 15px !important;
+  }
+  .auction-stats-grid > div:last-child {
+    border-bottom: none;
+  }
+  h1 {
+    font-size: 36px !important;
+  }
+  .glow-cyan {
+    font-size: 32px !important;
+  }
+  .btn-primary, .btn-accent {
+    font-size: 14px !important;
+    padding: 0 16px;
+  }
+}

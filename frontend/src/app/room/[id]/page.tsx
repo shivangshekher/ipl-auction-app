@@ -190,7 +190,7 @@ export default function AuctionRoom() {
   const roles = ["Batsman", "Bowler", "Pacer", "Wicketkeeper", "All-Rounder"];
 
   return (
-    <div style={{ padding: "30px", maxWidth: "1600px", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 2.5fr 1.2fr", gap: "30px", height: "100vh", overflow: "hidden" }}>
+    <div className="arena-container">
       
       {/* LEFT COLUMN: Controls & Logs */}
       <div style={{ display: "flex", flexDirection: "column", gap: "20px", height: "100%" }}>
@@ -242,7 +242,7 @@ export default function AuctionRoom() {
 
               {auctionState.status === "ACTIVE" ? (
                 <>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0", width: "100%", marginBottom: "50px" }}>
+                  <div className="auction-stats-grid">
                     <div style={{ padding: "20px", borderRight: "1px solid var(--border)", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                       <p style={{ color: "var(--text-muted)", fontSize: "11px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "12px" }}>Base Price</p>
                       <p style={{ fontSize: "32px", fontWeight: "400", color: "var(--primary)" }}>{Number(auctionState.player?.basePrice).toFixed(2)} <span style={{ fontSize: "14px", fontWeight: "300" }}>Cr</span></p>
