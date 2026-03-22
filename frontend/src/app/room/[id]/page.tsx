@@ -213,17 +213,40 @@ export default function AuctionRoom() {
       } : { x: 0, y: 0, filter: "brightness(1)" }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
     >
-      {/* FULLSCREEN LUMA AI VIDEO INTERRUPT */}
+      {/* FULLSCREEN LUMA AI VIDEO INTERRUPTS */}
       <AnimatePresence>
-        {auctionState?.status === "ENDED" && auctionState.finalState?.status === "UNSOLD" && (
+        {auctionState?.status === "ENDED" && (
           <motion.div
+            key="fullscreen-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 99999, backgroundColor: "black" }}
+            style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 99999, backgroundColor: "black", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}
           >
-            <video src="/unsold.mp4" autoPlay muted playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <video 
+              src={auctionState.finalState?.status === "SOLD" ? "/sold.mp4" : "/unsold.mp4"} 
+              autoPlay muted playsInline 
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", opacity: auctionState.finalState?.status === "SOLD" ? 0.35 : 1 }} 
+            />
+            
+            {auctionState.finalState?.status === "SOLD" && (
+              <motion.div 
+                initial={{ scale: 3, opacity: 0, filter: "blur(20px)" }}
+                animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+                transition={{ type: "spring", stiffness: 150, damping: 10 }}
+                style={{ position: "relative", zIndex: 10, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}
+              >
+                <Gavel size={120} color="var(--primary)" strokeWidth={1} style={{ marginBottom: "30px", filter: "drop-shadow(0px 0px 30px rgba(0, 240, 255, 0.5))" }} />
+                <h1 style={{ fontSize: "100px", fontWeight: "900", color: "white", margin: 0, letterSpacing: "10px", lineHeight: "1" }}>SOLD</h1>
+                <h2 style={{ fontSize: "50px", fontWeight: "300", color: "var(--primary)", marginTop: "20px", letterSpacing: "2px" }}>{auctionState.finalState?.player}</h2>
+                <div style={{ padding: "20px 40px", background: "rgba(0,0,0,0.5)", border: "1px solid var(--primary)", borderRadius: "100px", marginTop: "40px", backdropFilter: "blur(10px)" }}>
+                  <p style={{ fontSize: "24px", color: "var(--text-muted)", margin: 0 }}>
+                    Acquired by <span style={{ color: "white", fontWeight: "700" }}>{auctionState.finalState?.soldToTeam}</span> for <span className="glow-gold" style={{ fontSize: "36px", fontWeight: "900", marginLeft: "10px" }}>{Number(auctionState.finalState?.amount).toFixed(2)} Cr</span>
+                  </p>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
