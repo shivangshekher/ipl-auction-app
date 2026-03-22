@@ -192,6 +192,20 @@ export default function AuctionRoom() {
 
   return (
     <div className="arena-container">
+      {/* FULLSCREEN LUMA AI VIDEO INTERRUPT */}
+      <AnimatePresence>
+        {auctionState?.status === "ENDED" && auctionState.finalState?.status === "UNSOLD" && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 99999, backgroundColor: "black" }}
+          >
+            <video src="/unsold.mp4" autoPlay muted playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* LEFT COLUMN: Controls & Logs */}
       <div style={{ display: "flex", flexDirection: "column", gap: "20px", height: "100%" }}>
@@ -311,17 +325,6 @@ export default function AuctionRoom() {
                     transition={{ type: "spring", stiffness: 100 }}
                     style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", position: "relative", overflow: "hidden", borderRadius: "12px" }}
                   >
-                    {auctionState.finalState?.status === "UNSOLD" && (
-                      <video 
-                        src="/unsold.mp4" 
-                        autoPlay 
-                        muted 
-                        loop
-                        playsInline
-                        style={{ position: "absolute", width: "100%", height: "100%", objectFit: "cover", opacity: 0.25, zIndex: 0, pointerEvents: "none" }}
-                      />
-                    )}
-                    
                     <motion.div 
                       key={auctionState.finalState?.status}
                       initial={auctionState.finalState?.status === "SOLD" ? { rotate: -40, scale: 1.5, opacity: 0 } : { y: -50, scale: 2, opacity: 0 }}
