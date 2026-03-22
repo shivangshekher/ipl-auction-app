@@ -1,6 +1,7 @@
 import { redisState } from "../redisClient";
 import { Server } from "socket.io";
 import { prisma } from "../db";
+import { Prisma } from "@prisma/client";
 
 const AUCTION_DURATION_SECONDS = 15;
 const BID_RESET_SECONDS = 10;
@@ -14,20 +15,47 @@ export const startAuction = async (roomId: string, adminId: string, io: Server) 
     }
   }
 
-  // Auction Lot Logic:
-  // 1. Descending Base Price (2 Cr -> 1 Cr -> 20L)
-  // 2. Specific Roles (Batsman -> Bowler -> Wicketkeeper -> All-Rounder)
-  // 3. Randomized within that exact lot
-  const availablePlayers = await prisma.$queryRaw<any[]>`
+  const squadCount = await prisma.squad.count({ where: { roomId } });
+  const unsoldIds = await redisState.smembers(`room:${roomId}:unsold`);
+  const unsoldCount = unsoldIds.length;
+  
+  const N = squadCount + unsoldCount;
+  const positionInCycle = N % 30; // 30 players per full exact logical cycle
+  
+  let targetPrice = 2.0;
+  if (positionInCycle >= 10 && positionInCycle < 20) targetPrice = 1.0;
+  else if (positionInCycle >= 20 && positionInCycle < 30) targetPrice = 0.20;
+
+  const unsoldFilter = unsoldIds.length > 0 
+    ? Prisma.sql`AND p.id NOT IN (${Prisma.join(unsoldIds)})` 
+    : Prisma.sql``;
+
+  // 1. Try to fetch exactly from the mathematically targeted bracket lot sequence
+  let availablePlayers = await prisma.$queryRaw<any[]>`
     SELECT p.* FROM "Player" p
-    WHERE p.id NOT IN (
+    WHERE p."basePrice" = ${targetPrice}
+    AND p.id NOT IN (
       SELECT s."playerId" FROM "Squad" s WHERE s."roomId" = ${roomId}
     )
-    ORDER BY 
-      p."basePrice" DESC,
-      random()
+    ${unsoldFilter}
+    ORDER BY random()
     LIMIT 1
   `;
+
+  // 2. Fallback protection: If the specific target loop is totally empty, safely grab highest available
+  if (!availablePlayers || availablePlayers.length === 0) {
+    availablePlayers = await prisma.$queryRaw<any[]>`
+      SELECT p.* FROM "Player" p
+      WHERE p.id NOT IN (
+        SELECT s."playerId" FROM "Squad" s WHERE s."roomId" = ${roomId}
+      )
+      ${unsoldFilter}
+      ORDER BY 
+        p."basePrice" DESC,
+        random()
+      LIMIT 1
+    `;
+  }
 
   if (!availablePlayers || availablePlayers.length === 0) {
     throw new Error("No players left to auction");
@@ -169,6 +197,9 @@ export const endAuction = async (roomId: string, io: Server) => {
       amount: state.highestBid
     });
   } else {
+    // Write unsold isolation constraint memory hook directly to Redis
+    await redisState.sadd(`room:${roomId}:unsold`, state.playerId);
+
     io.to(roomId).emit("auction_ended", {
       status: "UNSOLD",
       player: state.playerName

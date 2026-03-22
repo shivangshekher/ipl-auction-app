@@ -1,7 +1,8 @@
 import { Response } from "express";
-import { RoomType } from "@prisma/client";
 import { AuthRequest } from "../middleware/authMiddleware";
 import { prisma } from "../db";
+import { redisState } from "../redisClient";
+import { Prisma, RoomType } from "@prisma/client";
 
 export const createRoom = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -148,12 +149,18 @@ export const getMySquad = async (req: AuthRequest, res: Response): Promise<void>
 export const getUpcomingLots = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const roomId = req.params.roomId as string;
+    const unsoldIds = await redisState.smembers(`room:${roomId}:unsold`);
+
+    const unsoldFilter = unsoldIds.length > 0 
+      ? Prisma.sql`AND p.id NOT IN (${Prisma.join(unsoldIds)})` 
+      : Prisma.sql``;
 
     const availablePlayers = await prisma.$queryRaw<any[]>`
       SELECT p.* FROM "Player" p
       WHERE p.id NOT IN (
         SELECT s."playerId" FROM "Squad" s WHERE s."roomId" = ${roomId}
       )
+      ${unsoldFilter}
       ORDER BY 
         p."basePrice" DESC,
         p."name" ASC
