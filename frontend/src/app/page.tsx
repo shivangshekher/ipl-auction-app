@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "../store/useStore";
 import { Trophy } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -46,7 +47,13 @@ export default function AuthPage() {
 
   return (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", padding: "20px" }}>
-      <div className="card animate-fade-in" style={{ padding: "50px", width: "100%", maxWidth: "450px" }}>
+      <motion.div 
+        initial={{ opacity: 0, y: 50, filter: "blur(10px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.8, ease: "easeOut", type: "spring", bounce: 0.4 }}
+        className="card" 
+        style={{ padding: "50px", width: "100%", maxWidth: "450px" }}
+      >
         
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "30px" }}>
           <Trophy size={40} color="var(--primary)" strokeWidth={1} />
@@ -98,7 +105,7 @@ export default function AuthPage() {
             {isLogin ? "Sign Up" : "Log In"}
           </span>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }

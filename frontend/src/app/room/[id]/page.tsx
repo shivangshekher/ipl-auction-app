@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useStore } from "../../../store/useStore";
 import { initSocket, getSocket } from "../../../lib/socketClient";
 import { Gavel, Clock, Trophy, ChevronLeft, Hexagon, Wallet, PlayCircle, CheckCircle, ListFilter, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const getNextBid = (currentHighest: number, basePrice: number) => {
   if (!currentHighest || currentHighest === 0) return basePrice;
@@ -232,71 +233,111 @@ export default function AuctionRoom() {
         </div>
 
         <div style={{ padding: "40px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1 }}>
-          {auctionState && (auctionState.status === "ACTIVE" || auctionState.status === "ENDED") ? (
-            <div className={auctionState.status === "ACTIVE" ? "slide-elegant" : "animate-fade-in"} style={{ width: "100%", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
-              
-              <h1 style={{ fontSize: "64px", marginBottom: "0px", fontWeight: "300", color: "var(--primary)", letterSpacing: "2px", lineHeight: "1.1" }}>{auctionState.player?.name || auctionState.finalState?.player}</h1>
-              <p className={getRoleClass(auctionState.player?.role)} style={{ fontSize: "16px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "4px", marginBottom: "50px", marginTop: "10px" }}>
-                {auctionState.player?.role} <span style={{ padding: "0 12px", color: "var(--border)", fontWeight: "300" }}>|</span> <span style={{ color: "var(--text-muted)" }}>{auctionState.player?.team}</span>
-              </p>
+          <AnimatePresence mode="wait">
+            {auctionState && (auctionState.status === "ACTIVE" || auctionState.status === "ENDED") && (
+              <motion.div 
+                key={auctionState.player?.name || auctionState.finalState?.player + auctionState.status}
+                initial={{ opacity: 0, scale: 0.95, filter: "blur(5px)" }}
+                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                style={{ width: "100%", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}
+              >
+                
+                <motion.h1 
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                  style={{ fontSize: "64px", marginBottom: "0px", fontWeight: "300", color: "var(--primary)", letterSpacing: "2px", lineHeight: "1.1" }}
+                >
+                  {auctionState.player?.name || auctionState.finalState?.player}
+                </motion.h1>
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className={getRoleClass(auctionState.player?.role)} 
+                  style={{ fontSize: "16px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "4px", marginBottom: "50px", marginTop: "10px" }}
+                >
+                  {auctionState.player?.role || "SYSTEM"} <span style={{ padding: "0 12px", color: "var(--border)", fontWeight: "300" }}>|</span> <span style={{ color: "var(--text-muted)" }}>{auctionState.player?.team || "END"}</span>
+                </motion.p>
 
-              {auctionState.status === "ACTIVE" ? (
-                <>
-                  <div className="auction-stats-grid">
-                    <div style={{ padding: "20px", borderRight: "1px solid var(--border)", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                      <p style={{ color: "var(--text-muted)", fontSize: "11px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "12px" }}>Base Price</p>
-                      <p style={{ fontSize: "32px", fontWeight: "400", color: "var(--primary)" }}>{Number(auctionState.player?.basePrice).toFixed(2)} <span style={{ fontSize: "14px", fontWeight: "300" }}>Cr</span></p>
-                    </div>
-                    
-                    <div className={bidPop ? "pop-in" : ""} style={{ padding: "20px", display: "flex", flexDirection: "column", alignItems: "center", borderRight: "1px solid var(--border)" }}>
-                      <p style={{ color: "var(--text-muted)", fontSize: "11px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "12px" }}>Current Bid</p>
-                      <p className="glow-cyan" style={{ fontSize: "56px", fontWeight: "700", lineHeight: "1" }}>
-                        {auctionState.highestBid || 0} <span style={{ fontSize: "20px", fontWeight: "300", color: "var(--text-muted)" }}>Cr</span>
-                      </p>
-                      {auctionState.highestBidderTeam && (
-                        <div style={{ marginTop: "12px", display: "inline-block", padding: "6px 16px", border: `1px solid ${isWinning ? "var(--primary)" : "var(--border)"}`, color: isWinning ? "var(--bg-main)" : "var(--text-muted)", background: isWinning ? "var(--primary)" : "transparent", fontSize: "11px", fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase" }}>
-                          {isWinning ? "Holding Matrix" : auctionState.highestBidderTeam}
+                {auctionState.status === "ACTIVE" ? (
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <div className="auction-stats-grid">
+                      <div style={{ padding: "20px", borderRight: "1px solid var(--border)", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                        <p style={{ color: "var(--text-muted)", fontSize: "11px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "12px" }}>Base Price</p>
+                        <p style={{ fontSize: "32px", fontWeight: "400", color: "var(--primary)" }}>{Number(auctionState.player?.basePrice).toFixed(2)} <span style={{ fontSize: "14px", fontWeight: "300" }}>Cr</span></p>
+                      </div>
+                      
+                      <div className={bidPop ? "pop-in" : ""} style={{ padding: "20px", display: "flex", flexDirection: "column", alignItems: "center", borderRight: "1px solid var(--border)" }}>
+                        <p style={{ color: "var(--text-muted)", fontSize: "11px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "12px" }}>Current Bid</p>
+                        <p className="glow-cyan" style={{ fontSize: "56px", fontWeight: "700", lineHeight: "1" }}>
+                          {auctionState.highestBid || 0} <span style={{ fontSize: "20px", fontWeight: "300", color: "var(--text-muted)" }}>Cr</span>
+                        </p>
+                        {auctionState.highestBidderTeam && (
+                          <div style={{ marginTop: "12px", display: "inline-block", padding: "6px 16px", border: `1px solid ${isWinning ? "var(--primary)" : "var(--border)"}`, color: isWinning ? "var(--bg-main)" : "var(--text-muted)", background: isWinning ? "var(--primary)" : "transparent", fontSize: "11px", fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase" }}>
+                            {isWinning ? "Holding Matrix" : auctionState.highestBidderTeam}
+                          </div>
+                        )}
+                      </div>
+
+                      <div style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+                        <p style={{ color: "var(--text-muted)", fontSize: "11px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "12px" }}>Timeout</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", color: timeLeft <= 5 ? "var(--danger)" : "var(--primary)" }}>
+                          <span style={{ fontSize: "40px", fontWeight: "400", fontVariantNumeric: "tabular-nums", lineHeight: "1" }}>00:{timeLeft.toString().padStart(2, '0')}</span>
                         </div>
-                      )}
-                    </div>
-
-                    <div style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-                      <p style={{ color: "var(--text-muted)", fontSize: "11px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "12px" }}>Timeout</p>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px", color: timeLeft <= 5 ? "var(--danger)" : "var(--primary)" }}>
-                        <span style={{ fontSize: "40px", fontWeight: "400", fontVariantNumeric: "tabular-nums", lineHeight: "1" }}>00:{timeLeft.toString().padStart(2, '0')}</span>
                       </div>
                     </div>
-                  </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", width: "100%", maxWidth: "400px" }}>
-                    <button 
-                      onClick={handleBid} 
-                      className="btn-primary" 
-                      disabled={isWinning || isCapped || isBankrupt} 
-                      style={{ width: "100%", height: "64px", fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", opacity: (isWinning || isCapped || isBankrupt) ? 0.3 : 1, cursor: (isWinning || isCapped || isBankrupt) ? "not-allowed" : "pointer" }}>
-                      <Gavel size={20} /> 
-                      {isWinning ? "AWAITING CHALLENGERS" : isCapped ? "25/25 ROSTER MAXED" : isBankrupt ? "INSUFFICIENT CAPITAL" : `AUTHORIZE ${nextTargetBid} Cr`}
-                    </button>
-                    {(isBankrupt && !isCapped) && (
-                      <p style={{ fontSize: "11px", color: "var(--danger)", marginTop: "5px", letterSpacing: "1px" }}>Need {(requiredReserve).toFixed(2)} Cr in reserve for min. 15 players.</p>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", width: "100%", maxWidth: "400px" }}>
+                      <button 
+                        onClick={handleBid} 
+                        className="btn-primary" 
+                        disabled={isWinning || isCapped || isBankrupt} 
+                        style={{ width: "100%", height: "64px", fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", opacity: (isWinning || isCapped || isBankrupt) ? 0.3 : 1, cursor: (isWinning || isCapped || isBankrupt) ? "not-allowed" : "pointer" }}>
+                        <Gavel size={20} /> 
+                        {isWinning ? "AWAITING CHALLENGERS" : isCapped ? "25/25 ROSTER MAXED" : isBankrupt ? "INSUFFICIENT CAPITAL" : `AUTHORIZE ${nextTargetBid} Cr`}
+                      </button>
+                      {(isBankrupt && !isCapped) && (
+                        <p style={{ fontSize: "11px", color: "var(--danger)", marginTop: "5px", letterSpacing: "1px" }}>Need {(requiredReserve).toFixed(2)} Cr in reserve for min. 15 players.</p>
+                      )}
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    initial={auctionState.finalState?.status === "UNSOLD" ? { opacity: 0, filter: "grayscale(100%) brightness(50%)" } : { opacity: 0, scale: 0.8 }}
+                    animate={auctionState.finalState?.status === "UNSOLD" ? { opacity: 1, filter: "grayscale(100%) brightness(100%)" } : { opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 100 }}
+                    style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px" }}
+                  >
+                    <motion.div 
+                      key={auctionState.finalState?.status}
+                      initial={auctionState.finalState?.status === "SOLD" ? { rotate: -40, scale: 1.5, opacity: 0 } : { y: -50, scale: 2, opacity: 0 }}
+                      animate={auctionState.finalState?.status === "SOLD" ? { rotate: 0, scale: 1, opacity: 1 } : { y: 0, scale: 1, opacity: 1 }}
+                      transition={auctionState.finalState?.status === "SOLD" ? { type: "spring", stiffness: 300, bounce: 0.6 } : { type: "spring", stiffness: 400, bounce: 0 }}
+                      style={{ marginBottom: "30px", color: auctionState.finalState?.status === "SOLD" ? "var(--primary)" : "var(--danger)" }}
+                    >
+                      <Gavel size={100} strokeWidth={1} />
+                    </motion.div>
+                    
+                    <h2 style={{ fontSize: "40px", fontWeight: "900", letterSpacing: "10px", color: auctionState.finalState?.status === "SOLD" ? "var(--primary)" : "var(--danger)", textTransform: "uppercase", marginBottom: "10px" }}>
+                      {auctionState.finalState?.status}
+                    </h2>
+                    
+                    {auctionState.finalState?.status === "SOLD" ? (
+                      <p style={{ fontSize: "14px", color: "var(--text-muted)", letterSpacing: "1px" }}>
+                        Allocated to <span style={{ color: "var(--primary)", fontWeight: "600" }}>{auctionState.finalState?.soldToTeam}</span> for <span className="glow-gold" style={{ fontSize: "18px" }}>{auctionState.finalState?.amount} Cr</span>
+                      </p>
+                    ) : (
+                      <p style={{ fontSize: "14px", color: "var(--border)", letterSpacing: "1px" }}>Player retracted into unused database pool</p>
                     )}
-                  </div>
-                </>
-              ) : (
-                <div className="pop-in" style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px" }}>
-                  <div className={hammerActive ? "hammer-anim" : ""} style={{ marginBottom: "30px" }}>
-                    <Gavel size={100} color={auctionState.finalState?.status === "SOLD" ? "var(--primary)" : "var(--text-muted)"} strokeWidth={1} />
-                  </div>
-                  <h2 style={{ fontSize: "32px", fontWeight: "300", letterSpacing: "8px", color: "var(--primary)", textTransform: "uppercase", marginBottom: "10px" }}>{auctionState.finalState?.status}</h2>
-                  {auctionState.finalState?.status === "SOLD" && (
-                    <p style={{ fontSize: "14px", color: "var(--text-muted)", letterSpacing: "1px" }}>
-                      Allocated to <span style={{ color: "var(--primary)", fontWeight: "600" }}>{auctionState.finalState?.soldToTeam}</span> for <span className="glow-gold">{auctionState.finalState?.amount} Cr</span>
-                    </p>
-                  )}
-                  <p style={{ fontSize: "11px", color: "var(--border)", letterSpacing: "2px", textTransform: "uppercase", marginTop: "40px" }}>System loading next lot...</p>
-                </div>
-              )}
-            </div>
+                    <p style={{ fontSize: "11px", color: "var(--border)", letterSpacing: "2px", textTransform: "uppercase", marginTop: "40px" }}>System loading next lot...</p>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1 }}>
               {auctionState?.status === "COMPLETED" ? (
