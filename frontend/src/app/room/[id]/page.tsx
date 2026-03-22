@@ -338,28 +338,35 @@ export default function AuctionRoom() {
               </motion.div>
             )}
           </AnimatePresence>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1 }}>
-              {auctionState?.status === "COMPLETED" ? (
-                <>
-                  <div style={{ marginBottom: "30px" }}>
-                    <CheckCircle size={60} color="var(--primary)" strokeWidth={1} />
-                  </div>
-                  <h2 style={{ fontSize: "24px", color: "var(--primary)", fontWeight: "300", textAlign: "center", letterSpacing: "4px" }}>DRAFT SYSTEM SHUTDOWN</h2>
-                  <p style={{ color: "var(--text-muted)", marginTop: "12px", fontSize: "13px", textAlign: "center", letterSpacing: "1px" }}>All entries distributed.</p>
-                </>
-              ) : (
-                <>
-                  <Hexagon size={60} style={{ marginBottom: "30px", color: "var(--border)" }} strokeWidth={1} />
-                  <h2 style={{ fontSize: "20px", color: "var(--text-muted)", fontWeight: "400", letterSpacing: "2px", marginBottom: "40px" }}>SYSTEM IDLE</h2>
-                  
-                  <button onClick={startMegaDraft} className="btn-accent" style={{ width: "240px" }}>
-                    EXECUTE START
-                  </button>
-                </>
-              )}
-            </div>
-          )}
+            {(!auctionState || (auctionState.status !== "ACTIVE" && auctionState.status !== "ENDED")) && (
+              <motion.div 
+                key="system-idle"
+                initial={{ opacity: 0, scale: 0.9 }} 
+                animate={{ opacity: 1, scale: 1 }} 
+                exit={{ opacity: 0, filter: "blur(10px)" }}
+                transition={{ duration: 0.4 }}
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1 }}
+              >
+                {auctionState?.status === "COMPLETED" ? (
+                  <>
+                    <div style={{ marginBottom: "30px" }}>
+                      <CheckCircle size={60} color="var(--primary)" strokeWidth={1} />
+                    </div>
+                    <h2 style={{ fontSize: "24px", color: "var(--primary)", fontWeight: "300", textAlign: "center", letterSpacing: "4px" }}>DRAFT SYSTEM SHUTDOWN</h2>
+                    <p style={{ color: "var(--text-muted)", marginTop: "12px", fontSize: "13px", textAlign: "center", letterSpacing: "1px" }}>All entries distributed.</p>
+                  </>
+                ) : (
+                  <>
+                    <Hexagon size={60} style={{ marginBottom: "30px", color: "var(--border)" }} strokeWidth={1} />
+                    <h2 style={{ fontSize: "20px", color: "var(--text-muted)", fontWeight: "400", letterSpacing: "2px", marginBottom: "40px" }}>SYSTEM IDLE</h2>
+                    
+                    <button onClick={startMegaDraft} className="btn-accent" style={{ width: "240px" }}>
+                      EXECUTE START
+                    </button>
+                  </>
+                )}
+              </motion.div>
+            )}
         </div>
       </div>
 
