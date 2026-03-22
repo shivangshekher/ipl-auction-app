@@ -309,8 +309,19 @@ export default function AuctionRoom() {
                     initial={auctionState.finalState?.status === "UNSOLD" ? { opacity: 0, filter: "grayscale(100%) brightness(50%)" } : { opacity: 0, scale: 0.8 }}
                     animate={auctionState.finalState?.status === "UNSOLD" ? { opacity: 1, filter: "grayscale(100%) brightness(100%)" } : { opacity: 1, scale: 1 }}
                     transition={{ type: "spring", stiffness: 100 }}
-                    style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px" }}
+                    style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", position: "relative", overflow: "hidden", borderRadius: "12px" }}
                   >
+                    {auctionState.finalState?.status === "UNSOLD" && (
+                      <video 
+                        src="/unsold.mp4" 
+                        autoPlay 
+                        muted 
+                        loop
+                        playsInline
+                        style={{ position: "absolute", width: "100%", height: "100%", objectFit: "cover", opacity: 0.25, zIndex: 0, pointerEvents: "none" }}
+                      />
+                    )}
+                    
                     <motion.div 
                       key={auctionState.finalState?.status}
                       initial={auctionState.finalState?.status === "SOLD" ? { rotate: -40, scale: 1.5, opacity: 0 } : { y: -50, scale: 2, opacity: 0 }}
@@ -326,13 +337,13 @@ export default function AuctionRoom() {
                     </h2>
                     
                     {auctionState.finalState?.status === "SOLD" ? (
-                      <p style={{ fontSize: "14px", color: "var(--text-muted)", letterSpacing: "1px" }}>
+                      <p style={{ fontSize: "14px", color: "var(--text-muted)", letterSpacing: "1px", zIndex: 10 }}>
                         Allocated to <span style={{ color: "var(--primary)", fontWeight: "600" }}>{auctionState.finalState?.soldToTeam}</span> for <span className="glow-gold" style={{ fontSize: "18px" }}>{auctionState.finalState?.amount} Cr</span>
                       </p>
                     ) : (
-                      <p style={{ fontSize: "14px", color: "var(--border)", letterSpacing: "1px" }}>Player retracted into unused database pool</p>
+                      <p style={{ fontSize: "14px", color: "var(--border)", letterSpacing: "1px", zIndex: 10 }}>Player retracted into unused database pool</p>
                     )}
-                    <p style={{ fontSize: "11px", color: "var(--border)", letterSpacing: "2px", textTransform: "uppercase", marginTop: "40px" }}>System loading next lot...</p>
+                    <p style={{ fontSize: "11px", color: "var(--border)", letterSpacing: "2px", textTransform: "uppercase", marginTop: "40px", zIndex: 10 }}>System loading next lot...</p>
                   </motion.div>
                 )}
               </motion.div>
