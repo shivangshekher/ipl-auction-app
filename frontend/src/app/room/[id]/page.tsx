@@ -43,6 +43,8 @@ export default function AuctionRoom() {
   const [bidPop, setBidPop] = useState(false);
   const [showLotsModal, setShowLotsModal] = useState(false);
   const [showSquadModal, setShowSquadModal] = useState(false);
+  
+  const [showActiveVideo, setShowActiveVideo] = useState(false);
 
   const fetchSquadAndPurse = async () => {
     if (!user || !id) return;
@@ -85,6 +87,7 @@ export default function AuctionRoom() {
 
     socket.on("auction_started", (data) => {
       setAuctionState({ ...data, status: "ACTIVE" });
+      setShowActiveVideo(true);
       setLogs((prev) => [{ text: `INITIALIZED: ${data.player.name} on block`, type: "info" }, ...prev]);
     });
 
@@ -135,6 +138,13 @@ export default function AuctionRoom() {
       socket.off("auction_error");
     };
   }, [id, user]);
+
+  useEffect(() => {
+    if (showActiveVideo && auctionState?.status === "ACTIVE") {
+      const timer = setTimeout(() => setShowActiveVideo(false), 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [showActiveVideo, auctionState?.status]);
 
   useEffect(() => {
     if (!auctionState?.endTime || auctionState.status !== "ACTIVE") return;
@@ -246,7 +256,26 @@ export default function AuctionRoom() {
           {auctionState?.status === "ACTIVE" && <span className="badge-live">LIVE</span>}
         </div>
 
-        <div style={{ padding: "40px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1 }}>
+        {/* ACTIVE PLAYER BACKGROUND VIDEO */}
+        <AnimatePresence>
+          {auctionState?.status === "ACTIVE" && showActiveVideo && (
+            <motion.video 
+              key="active-bg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.25 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1 }}
+              src="/active.mp4" 
+              autoPlay 
+              muted 
+              loop 
+              playsInline 
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, pointerEvents: "none" }} 
+            />
+          )}
+        </AnimatePresence>
+
+        <div style={{ padding: "40px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, position: "relative", zIndex: 10 }}>
           <AnimatePresence mode="wait">
             {auctionState && (auctionState.status === "ACTIVE" || auctionState.status === "ENDED") && (
               <motion.div 
