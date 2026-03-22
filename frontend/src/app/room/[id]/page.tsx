@@ -224,28 +224,69 @@ export default function AuctionRoom() {
             transition={{ duration: 0.5 }}
             style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 99999, backgroundColor: "black", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}
           >
-            <video 
-              src={auctionState.finalState?.status === "SOLD" ? "/sold.mp4" : "/unsold.mp4"} 
-              autoPlay muted playsInline 
-              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", opacity: auctionState.finalState?.status === "SOLD" ? 0.35 : 1 }} 
-            />
+            {auctionState.finalState?.status === "UNSOLD" && (
+              <video 
+                src="/unsold.mp4" 
+                autoPlay muted playsInline 
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 1 }} 
+              />
+            )}
             
             {auctionState.finalState?.status === "SOLD" && (
-              <motion.div 
-                initial={{ scale: 3, opacity: 0, filter: "blur(20px)" }}
-                animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-                transition={{ type: "spring", stiffness: 150, damping: 10 }}
-                style={{ position: "relative", zIndex: 10, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}
-              >
-                <Gavel size={120} color="var(--primary)" strokeWidth={1} style={{ marginBottom: "30px", filter: "drop-shadow(0px 0px 30px rgba(0, 240, 255, 0.5))" }} />
-                <h1 style={{ fontSize: "100px", fontWeight: "900", color: "white", margin: 0, letterSpacing: "10px", lineHeight: "1" }}>SOLD</h1>
-                <h2 style={{ fontSize: "50px", fontWeight: "300", color: "var(--primary)", marginTop: "20px", letterSpacing: "2px" }}>{auctionState.finalState?.player}</h2>
-                <div style={{ padding: "20px 40px", background: "rgba(0,0,0,0.5)", border: "1px solid var(--primary)", borderRadius: "100px", marginTop: "40px", backdropFilter: "blur(10px)" }}>
-                  <p style={{ fontSize: "24px", color: "var(--text-muted)", margin: 0 }}>
-                    Acquired by <span style={{ color: "white", fontWeight: "700" }}>{auctionState.finalState?.soldToTeam}</span> for <span className="glow-gold" style={{ fontSize: "36px", fontWeight: "900", marginLeft: "10px" }}>{Number(auctionState.finalState?.amount).toFixed(2)} Cr</span>
-                  </p>
-                </div>
-              </motion.div>
+              <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", background: "radial-gradient(circle, rgba(40,30,0,1) 0%, rgba(0,0,0,1) 70%)" }}>
+                
+                {/* Mathematical Shockwave Rings */}
+                <motion.div
+                  initial={{ scale: 0, opacity: 1 }}
+                  animate={{ scale: [0, 3, 5], opacity: [1, 0.8, 0] }}
+                  transition={{ duration: 1.2, ease: "easeOut" }}
+                  style={{ position: "absolute", top: "35%", width: "200px", height: "200px", borderRadius: "50%", border: "4px solid rgba(255, 215, 0, 1)", boxShadow: "0 0 50px gold", zIndex: 1 }}
+                />
+                <motion.div
+                  initial={{ scale: 0, opacity: 1 }}
+                  animate={{ scale: [0, 2, 4], opacity: [1, 0.5, 0] }}
+                  transition={{ duration: 1.2, delay: 0.1, ease: "easeOut" }}
+                  style={{ position: "absolute", top: "35%", width: "200px", height: "200px", borderRadius: "50%", border: "8px solid rgba(255, 215, 0, 0.5)", zIndex: 1 }}
+                />
+                
+                {/* 3D "SOLD" STAMP */}
+                <motion.div 
+                  initial={{ scale: 5, opacity: 0, y: -200, rotateX: 45 }}
+                  animate={{ scale: 1, opacity: 1, y: 0, rotateX: 0 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 12, mass: 1.5 }}
+                  style={{ position: "relative", zIndex: 10, textAlign: "center", marginTop: "20vh", display: "flex", flexDirection: "column", alignItems: "center" }}
+                >
+                  <motion.h1 
+                    initial={{ textShadow: "0px 0px 0px rgba(255,215,0,0)" }}
+                    animate={{ textShadow: "0px 0px 60px rgba(255,215,0,0.8), 0px 0px 100px rgba(255,255,255,0.4)" }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
+                    style={{ fontSize: "160px", fontWeight: "900", color: "#fff", margin: 0, letterSpacing: "20px", lineHeight: "1", filter: "drop-shadow(0px 10px 10px rgba(0,0,0,0.8))" }}
+                  >
+                    SOLD
+                  </motion.h1>
+                </motion.div>
+
+                {/* Player & Price Reveal */}
+                <motion.div 
+                  initial={{ y: 50, opacity: 0, filter: "blur(10px)" }}
+                  animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                  transition={{ delay: 0.8, type: "spring", stiffness: 100 }}
+                  style={{ position: "relative", zIndex: 10, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}
+                >
+                  <h2 style={{ fontSize: "50px", fontWeight: "300", color: "gold", marginTop: "20px", letterSpacing: "2px", textShadow: "0px 0px 20px rgba(255,215,0,0.5)" }}>{auctionState.finalState?.player}</h2>
+                  
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 1.2, type: "spring" }}
+                    style={{ padding: "20px 50px", background: "linear-gradient(90deg, rgba(255,215,0,0.05) 0%, rgba(255,215,0,0.15) 50%, rgba(255,215,0,0.05) 100%)", borderTop: "2px solid gold", borderBottom: "2px solid gold", marginTop: "30px", backdropFilter: "blur(10px)", boxShadow: "0 10px 30px rgba(0,0,0,0.8)" }}
+                  >
+                    <p style={{ fontSize: "28px", color: "white", margin: 0, fontWeight: "300" }}>
+                      Acquired by <span style={{ color: "gold", fontWeight: "900", letterSpacing: "1px" }}>{auctionState.finalState?.soldToTeam}</span> for <span style={{ color: "white", fontSize: "40px", fontWeight: "900", marginLeft: "15px", textShadow: "0 0 20px rgba(255,255,255,0.5)" }}>{Number(auctionState.finalState?.amount).toFixed(2)} Cr</span>
+                    </p>
+                  </motion.div>
+                </motion.div>
+              </div>
             )}
           </motion.div>
         )}
