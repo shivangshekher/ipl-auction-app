@@ -45,6 +45,7 @@ export default function AuctionRoom() {
   const [showSquadModal, setShowSquadModal] = useState(false);
   
   const [showActiveVideo, setShowActiveVideo] = useState(false);
+  const [revealShake, setRevealShake] = useState(false);
 
   const fetchSquadAndPurse = async () => {
     if (!user || !id) return;
@@ -88,6 +89,8 @@ export default function AuctionRoom() {
     socket.on("auction_started", (data) => {
       setAuctionState({ ...data, status: "ACTIVE" });
       setShowActiveVideo(true);
+      setRevealShake(true);
+      setTimeout(() => setRevealShake(false), 500);
       setLogs((prev) => [{ text: `INITIALIZED: ${data.player.name} on block`, type: "info" }, ...prev]);
     });
 
@@ -201,7 +204,15 @@ export default function AuctionRoom() {
   const roles = ["Batsman", "Bowler", "Pacer", "Wicketkeeper", "All-Rounder"];
 
   return (
-    <div className="arena-container">
+    <motion.div 
+      className="arena-container"
+      animate={revealShake ? { 
+        x: [-15, 15, -10, 10, -5, 5, 0], 
+        y: [15, -15, 10, -10, 5, -5, 0],
+        filter: ["brightness(1.5)", "brightness(1)", "brightness(1)"]
+      } : { x: 0, y: 0, filter: "brightness(1)" }}
+      transition={{ duration: 0.5, ease: "easeInOut" }}
+    >
       {/* FULLSCREEN LUMA AI VIDEO INTERRUPT */}
       <AnimatePresence>
         {auctionState?.status === "ENDED" && auctionState.finalState?.status === "UNSOLD" && (
@@ -288,10 +299,10 @@ export default function AuctionRoom() {
               >
                 
                 <motion.h1 
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                  style={{ fontSize: "64px", marginBottom: "0px", fontWeight: "300", color: "var(--primary)", letterSpacing: "2px", lineHeight: "1.1" }}
+                  initial={{ opacity: 0, scale: 3, filter: "blur(20px)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  transition={{ delay: 0.1, duration: 0.5, type: "spring", stiffness: 150 }}
+                  style={{ fontSize: "64px", marginBottom: "0px", fontWeight: "300", color: "var(--primary)", letterSpacing: "2px", lineHeight: "1.1", textShadow: "0px 0px 30px rgba(0, 240, 255, 0.4)" }}
                 >
                   {auctionState.player?.name || auctionState.finalState?.player}
                 </motion.h1>
@@ -548,6 +559,6 @@ export default function AuctionRoom() {
         </div>
       )}
 
-    </div>
+    </motion.div>
   );
 }
